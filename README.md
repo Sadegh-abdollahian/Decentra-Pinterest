@@ -10,7 +10,7 @@ Decentra Pinterest is a blockchain-based image sharing platform. It focus on pho
 ***
 ## Contract Overview
 
-### 1. DeLT Token Contract
+### 1. Decentra Pinterest Contract
 
 Decentra Pinterest contract is a contract for storing and maintaining hashes of images and descriptions of photos, and focuses on maintaining images for life.
 ***
