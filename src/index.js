@@ -2,13 +2,22 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import UploudPage from './components/uploud-page/uploudPage';
 import reportWebVitals from './reportWebVitals';
+import NoPage from './components/404/404';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import DonatePage from './components/donatePage/donatePage';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+    <BrowserRouter>
+      <Routes>
+        <Route index element={<App />}/>
+        <Route path="uploud" element={<UploudPage />}/>
+        <Route path="donate" element={<DonatePage />}/>
+        <Route path="*" element={<NoPage />}/>
+      </Routes>
+    </BrowserRouter>
 );
 
 // If you want to start measuring performance in your app, pass a function

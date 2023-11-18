@@ -1,0 +1,30 @@
+.navbar {
+    background-color: #35363A;
+    height: 50px;
+    padding: 7px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+}
+
+.div-style {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 10px;
+}
+
+.address-style {
+    color: rgb(205, 205, 205);
+    font-family: 'Trebuchet MS', sans-serif;
+    font-size: 17px;
+}
+
+.logo-style {
+    width: 40px;
+}
+
+.name-style{
+    
+}

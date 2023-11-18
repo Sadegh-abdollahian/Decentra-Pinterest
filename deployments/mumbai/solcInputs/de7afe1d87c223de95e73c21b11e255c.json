@@ -1,0 +1,41 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/ReentrancyGuard.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.2;\r\n\r\n/**\r\n * @title Helps contracts guard against reentrancy attacks.\r\n * @author Remco Bloemen <remco@2π.com>, Eenae <alexey@mixbytes.io>\r\n * @dev If you mark a function `nonReentrant`, you should also\r\n * mark it `external`.\r\n */\r\ncontract ReentrancyGuard {\r\n    /// @dev counter to allow mutex lock with only one SSTORE operation\r\n    uint256 private _guardCounter;\r\n\r\n    constructor () {\r\n        // The counter starts at one to prevent changing it from zero to a non-zero\r\n        // value, which is a more expensive operation.\r\n        _guardCounter = 1;\r\n    }\r\n\r\n    /**\r\n     * @dev Prevents a contract from calling itself, directly or indirectly.\r\n     * Calling a `nonReentrant` function from another `nonReentrant`\r\n     * function is not supported. It is possible to prevent this from happening\r\n     * by making the `nonReentrant` function external, and make it call a\r\n     * `private` function that does the actual work.\r\n     */\r\n    modifier nonReentrant() {\r\n        _guardCounter += 1;\r\n        uint256 localCounter = _guardCounter;\r\n        _;\r\n        require(localCounter == _guardCounter);\r\n    }\r\n}"
+    },
+    "contracts/SafeMath.sol": {
+      "content": "// SPDX-License-Identifier: MIT\r\n// OpenZeppelin Contracts (last updated v4.9.0) (utils/math/SafeMath.sol)\r\n\r\npragma solidity ^0.8.0;\r\n\r\n/**\r\n * @dev we just need the add function \r\n */\r\nlibrary SafeMath {\r\n    /**\r\n     * @dev Returns the addition of two unsigned integers, reverting on\r\n     * overflow.\r\n     *\r\n     * Counterpart to Solidity's `+` operator.\r\n     *\r\n     * Requirements:\r\n     *\r\n     * - Addition cannot overflow.\r\n     */\r\n    function add(uint256 a, uint256 b) internal pure returns (uint256) {\r\n        return a + b;\r\n    }\r\n\r\n    /**\r\n     * @dev Returns the subtraction of two unsigned integers, reverting on\r\n     * overflow (when the result is negative).\r\n     *\r\n     * Counterpart to Solidity's `-` operator.\r\n     *\r\n     * Requirements:\r\n     *\r\n     * - Subtraction cannot overflow.\r\n     */\r\n    function sub(uint256 a, uint256 b) internal pure returns (uint256) {\r\n        return a - b;\r\n    }\r\n}\r\n"
+    },
+    "contracts/Youtube.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.19;\n\nimport \"./SafeMath.sol\";\nimport \"./ReentrancyGuard.sol\";\n\ncontract DecentraPinterest is ReentrancyGuard {\n    using SafeMath for uint256;\n\n    uint256 s_imageCount;\n    string public name = \"Decentra-Pinterest\";\n\n    mapping(uint256 => image) public images;\n\n    struct image {\n        uint256 id;\n        uint256 donateAmount;\n        address payable author;\n        string hash; // Can't use bytes32 because of IPFS cid length\n        string description;\n    }\n\n    event ImageUploaded(\n        uint256 id,\n        uint256 donateAmount,\n        address payable author,\n        string hash,\n        string description\n    );\n\n    event ImageDonated(\n        uint256 id,\n        uint256 donateAmount,\n        address payable author\n    );\n\n    receive() external payable {}\n\n    function uploadImage(\n        string memory _imageHash,\n        string memory _imageDescription\n    ) public {\n        require(msg.sender != address(0), \"uploadImage from zero address\");\n        require(bytes(_imageDescription).length > 0, \"incorrect description\");\n        require(bytes(_imageHash).length > 0, \"incorrect hash\");\n\n        s_imageCount = s_imageCount.add(1);\n        images[s_imageCount] = image(\n            s_imageCount,\n            0,\n            payable(msg.sender),\n            _imageHash,\n            _imageDescription\n        );\n\n        emit ImageUploaded(\n            s_imageCount,\n            0,\n            payable(msg.sender),\n            _imageHash,\n            _imageDescription\n        );\n    }\n\n    function donateImageOwner(uint256 _id) public payable nonReentrant {\n        require(_id > 0 && _id <= s_imageCount, \"Invalid id\");\n\n        image memory _image = images[_id];\n\n        address payable _author = _image.author;\n\n        (bool sent, ) = _author.call{value: msg.value}(\"\");\n        require(sent, \"Falid to send ETH\");\n\n        _image.donateAmount = _image.donateAmount.add(msg.value);\n\n        images[_id] = _image;\n\n        emit ImageDonated(s_imageCount, msg.value, payable(msg.sender));\n    }\n\n    function getImageFromId(uint256 _id) public view returns (image memory) {\n        require(_id > 0 && _id <= s_imageCount, \"Invalid id\");\n        return images[_id];\n    }\n\n    function getImageCount() public view returns (uint256) {\n        return s_imageCount;\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
